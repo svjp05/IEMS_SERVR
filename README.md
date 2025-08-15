@@ -119,4 +119,4 @@ curl --location 'https://open.bigmodel.cn/api/paas/v4/chat/completions' \
 - **禁止**：用作者名义进行虚假宣传。
 - **无担保**：作者不承担代码使用后的风险。
 
-详见 [LICENSE 文件](LICENSE)。
+详见 [LICENSE 文件](https://github.com/svjp05/IEMS_SERVR/blob/main/LICENSE.txt)。
