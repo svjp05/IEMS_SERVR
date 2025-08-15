@@ -1,0 +1,11 @@
+{
+	"folders": [
+		{
+			"path": "../../../../../CH32V307EVT/EVT/EXAM/SDIO/SDIO_SD"
+		},
+		{
+			"path": "../../.."
+		}
+	],
+	"settings": {}
+}
