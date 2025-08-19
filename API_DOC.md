@@ -420,7 +420,7 @@ curl -X POST \
   "status": 500,
   "details": "预览生成服务错误: 无法处理配置选项"
 }
-
+```
 
 ### 获取报告配置选项
 ```
@@ -520,7 +520,7 @@ GET /reports/config
   "status": 500,
   "details": "无法加载配置选项"
 }
-
+```
 
 ### 验证报告数据
 ```
@@ -589,7 +589,7 @@ curl -X POST \
   "status": 500,
   "details": "验证服务错误: 无法处理数据格式"
 }
-
+```
 
 ## 地震数据接口
 
@@ -631,7 +631,6 @@ curl -X GET \
       },
       "metadata": {}
     },
-    // 更多数据...
   ]
 }
 ```
@@ -652,7 +651,7 @@ curl -X GET \
   "status": 400,
   "details": "startDate: 2024-01-01, endDate: 2024-01-31 不是有效的ISO8601格式"
 }
-
+```
 #### 获取特定波形类型的历史数据
 ```
 GET /earthquake-data/historical/:waveformType
@@ -693,7 +692,6 @@ curl -X GET \
       },
       "metadata": {}
     },
-    // 更多数据...
   ]
 }
 ```
@@ -743,7 +741,6 @@ curl -X GET \
       },
       "metadata": {}
     },
-    // 更多数据...
   ]
 }
 ```
@@ -806,7 +803,7 @@ curl -X POST \
   "status": 400,
   "details": "请求体中缺少amplitude字段"
 }
-
+```
 ### 数据生成器控制
 
 #### 获取生成器状态
