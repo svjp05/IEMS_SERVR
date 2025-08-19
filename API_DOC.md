@@ -322,7 +322,7 @@ Content-Disposition: attachment; filename="地震数据分析_2024-03-21.xlsx"
   "status": 500,
   "details": "Excel生成服务错误: 无法创建工作表"
 }
-
+```
 
 ### 获取报告模板
 ```
@@ -352,7 +352,7 @@ GET /reports/template/:type
   "status": 500,
   "details": "无法读取模板文件: templatePath.html"
 }
-
+```
 
 ### 预览报告
 ```
