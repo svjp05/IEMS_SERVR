@@ -272,7 +272,7 @@ Content-Disposition: attachment; filename="地震分析报告_2024-03-21.pdf"
   "status": 500,
   "details": "PDF生成服务错误: 无法渲染报告模板"
 }
-
+```
 
 ### 生成Excel报告
 ```
