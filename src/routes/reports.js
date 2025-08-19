@@ -13,8 +13,9 @@ router.post('/pdf', async (req, res) => {
     
     if (!reportData) {
       return res.status(400).json({
-        success: false,
-        message: '缺少报告数据'
+        message: '缺少报告数据',
+        status: 400,
+        details: '请求体中未提供reportData参数'
       });
     }
 
@@ -32,9 +33,9 @@ router.post('/pdf', async (req, res) => {
   } catch (error) {
     console.error('PDF生成错误:', error);
     res.status(500).json({ 
-      success: false, 
       message: '生成PDF报告失败', 
-      error: error.message 
+      status: 500,
+      details: error.message 
     });
   }
 });
@@ -46,8 +47,9 @@ router.post('/excel', async (req, res) => {
     
     if (!reportData) {
       return res.status(400).json({
-        success: false,
-        message: '缺少报告数据'
+        message: '缺少报告数据',
+        status: 400,
+        details: '请求体中未提供reportData参数'
       });
     }
 
@@ -65,9 +67,9 @@ router.post('/excel', async (req, res) => {
   } catch (error) {
     console.error('Excel生成错误:', error);
     res.status(500).json({ 
-      success: false, 
       message: '生成Excel报告失败', 
-      error: error.message 
+      status: 500,
+      details: error.message 
     });
   }
 });
@@ -81,16 +83,18 @@ router.get('/template/:type', async (req, res) => {
     const templateContent = await fs.readFile(templatePath, 'utf8');
     
     res.json({
-      success: true,
-      template: templateContent
+      status: 200,
+      data: {
+        template: templateContent
+      }
     });
 
   } catch (error) {
     console.error('获取模板错误:', error);
     res.status(500).json({
-      success: false,
       message: '获取报告模板失败',
-      error: error.message
+      status: 500,
+      details: error.message
     });
   }
 });
@@ -102,8 +106,9 @@ router.post('/preview', async (req, res) => {
     
     if (!reportData) {
       return res.status(400).json({
-        success: false,
-        message: '缺少报告数据'
+        message: '缺少报告数据',
+        status: 400,
+        details: '请求体中未提供reportData参数'
       });
     }
 
@@ -155,16 +160,18 @@ router.post('/preview', async (req, res) => {
     }
 
     res.json({
-      success: true,
-      preview: preview
+      status: 201,
+      data: {
+        preview: preview
+      }
     });
 
   } catch (error) {
     console.error('预览生成错误:', error);
     res.status(500).json({
-      success: false,
       message: '生成报告预览失败',
-      error: error.message
+      status: 500,
+      details: error.message
     });
   }
 });
@@ -195,16 +202,18 @@ router.get('/config', (req, res) => {
     };
 
     res.json({
-      success: true,
-      config: config
+      status: 200,
+      data: {
+        config: config
+      }
     });
 
   } catch (error) {
     console.error('获取配置错误:', error);
     res.status(500).json({
-      success: false,
       message: '获取报告配置失败',
-      error: error.message
+      status: 500,
+      details: error.message
     });
   }
 });
@@ -225,7 +234,12 @@ router.post('/validate', (req, res) => {
     if (!reportData) {
       validation.isValid = false;
       validation.errors.push('缺少报告数据');
-      return res.json({ success: true, validation });
+      return res.json({
+      status: 201,
+      data: {
+        validation: validation
+      }
+    });
     }
 
     // 检查日期范围
@@ -266,17 +280,19 @@ router.post('/validate', (req, res) => {
     }
 
     res.json({
-      success: true,
-      validation: validation
+      status: 201,
+      data: {
+        validation: validation
+      }
     });
 
   } catch (error) {
     console.error('验证错误:', error);
     res.status(500).json({
-      success: false,
-      message: '验证报告数据失败',
-      error: error.message
-    });
+        message: '验证报告数据失败',
+        status: 500,
+        details: error.message
+      });
   }
 });
 

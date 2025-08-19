@@ -11,9 +11,11 @@ const logger = require('../utils/logger');
 // 健康检查端点
 router.get('/health', (req, res) => {
   res.status(200).json({
-    status: 'ok',
-    timestamp: new Date().toISOString(),
-    service: 'earthquake-monitor-api',
+    status: 200,
+    data: {
+      timestamp: new Date().toISOString(),
+      service: 'earthquake-monitor-api',
+    }
   });
 });
 
@@ -25,7 +27,9 @@ router.post('/earthquake-data', async (req, res) => {
     // 验证必须参数
     if (data.amplitude === undefined || data.amplitude === null) {
       return res.status(400).json({ 
-        error: { message: '缺少必要参数: amplitude' } 
+        message: 'amplitude是必须的',
+        status: 400,
+        details: "缺少必要参数: amplitude"
       });
     }
     
@@ -64,15 +68,20 @@ router.post('/earthquake-data', async (req, res) => {
     
     // 返回成功响应
     res.status(201).json({
-      message: '数据已成功保存并广播',
-      id: savedData.id,
-      timestamp: savedData.timestamp
+      status: 201,
+      data: {
+        message: '数据已成功保存并广播',
+        id: savedData.id,
+        timestamp: savedData.timestamp
+      }
     });
   } catch (error) {
     logger.error('保存HTTP API数据时出错:', error);
     res.status(500).json({ 
-      error: { message: '保存数据时出错: ' + error.message } 
-    });
+        message: '保存数据时出错', 
+        status: 500, 
+        details: error.message 
+      });
   }
 });
 
@@ -80,19 +89,28 @@ router.post('/earthquake-data', async (req, res) => {
 router.get('/generator/status', (req, res) => {
   const status = getGeneratorStatus();
   logger.info(`获取生成器状态: ${status.running ? '运行中' : '已停止'}`);
-  res.status(200).json(status);
+  res.status(200).json({
+      status: 200,
+      data: status
+    });
 });
 
 router.post('/generator/start', (req, res) => {
   const result = startDataGenerator(global.io, global.wss);
   logger.info(`启动生成器: ${result.message}`);
-  res.status(200).json(result);
+  res.status(200).json({
+      status: 200,
+      data: result
+    });
 });
 
 router.post('/generator/stop', (req, res) => {
   const result = stopDataGenerator();
   logger.info(`停止生成器: ${result.message}`);
-  res.status(200).json(result);
+  res.status(200).json({
+      status: 200,
+      data: result
+    });
 });
 
 // 生成历史数据的测试端点
@@ -108,10 +126,13 @@ router.post('/generate-test-data', async (req, res, next) => {
     const data = await generateHistoricalData(count, startDate);
     
     res.status(200).json({
-      message: `成功生成${data.length}条历史测试数据`,
-      startDate: startDate.toISOString(),
-      endDate: new Date().toISOString(),
-      count: data.length
+      status: 200,
+      data: {
+        message: `成功生成${data.length}条历史测试数据`,
+        startDate: startDate.toISOString(),
+        endDate: new Date().toISOString(),
+        count: data.length
+      }
     });
   } catch (error) {
     logger.error('生成测试数据时出错:', error);
@@ -139,11 +160,10 @@ router.use((err, req, res, next) => {
   const message = err.message || '服务器内部错误';
   
   res.status(statusCode).json({
-    error: {
       message,
       status: statusCode,
-    },
-  });
+      details: err.details || '请求处理过程中发生错误'
+    });
 });
 
-module.exports = router; 
+module.exports = router;

@@ -9,7 +9,7 @@ router.get('/cache/stats', (req, res) => {
     const stats = cacheManager.getStats();
     
     res.json({
-      success: true,
+      status: 200,
       data: {
         cache: stats,
         timestamp: new Date().toISOString(),
@@ -20,9 +20,9 @@ router.get('/cache/stats', (req, res) => {
   } catch (error) {
     logger.error('获取缓存统计失败:', error);
     res.status(500).json({
-      success: false,
       message: '获取缓存统计失败',
-      error: error.message
+      status: 500,
+      details: error.message
     });
   }
 });
@@ -60,30 +60,34 @@ router.post('/cache/clear', (req, res) => {
         break;
       default:
         return res.status(400).json({
-          success: false,
-          message: '无效的缓存类型'
+          message: '无效的缓存类型',
+          status: 400,
+          details: '支持的缓存类型: all, analysis, data'
         });
     }
 
     if (result) {
       logger.info(`缓存清理完成: ${type}`);
       res.json({
-        success: true,
-        message: `${type}缓存已清理`,
-        timestamp: new Date().toISOString()
+        status: 201,
+        data: {
+          message: `${type}缓存已清理`,
+          timestamp: new Date().toISOString()
+        }
       });
     } else {
       res.status(500).json({
-        success: false,
-        message: '缓存清理失败'
-      });
+          message: '缓存清理失败',
+          status: 500,
+          details: '无法完成缓存清理操作'
+        });
     }
   } catch (error) {
     logger.error('清理缓存失败:', error);
     res.status(500).json({
-      success: false,
-      message: '清理缓存失败',
-      error: error.message
+      message: '缓存清理失败',
+        status: 500,
+        details: error.message
     });
   }
 });
@@ -130,18 +134,20 @@ router.post('/cache/warmup', async (req, res) => {
     logger.info(`缓存预热完成: ${warmedCount} 个条目`);
     
     res.json({
-      success: true,
-      message: `缓存预热完成`,
-      warmedCount,
-      type,
-      timestamp: new Date().toISOString()
-    });
+        status: 201,
+        data: {
+          message: `缓存预热完成`,
+          warmedCount,
+          type,
+          timestamp: new Date().toISOString()
+        }
+      });
   } catch (error) {
     logger.error('缓存预热失败:', error);
     res.status(500).json({
-      success: false,
       message: '缓存预热失败',
-      error: error.message
+      status: 500,
+      details: error.message
     });
   }
 });
@@ -176,15 +182,15 @@ router.get('/system/stats', (req, res) => {
     };
     
     res.json({
-      success: true,
+      status:200,
       data: stats
     });
   } catch (error) {
     logger.error('获取系统统计失败:', error);
     res.status(500).json({
-      success: false,
       message: '获取系统统计失败',
-      error: error.message
+      status: 500,
+      details: error.message
     });
   }
 });
@@ -231,17 +237,15 @@ router.get('/health', (req, res) => {
                       health.status === 'warning' ? 200 : 503;
     
     res.status(statusCode).json({
-      success: true,
+      status:200,
       data: health
     });
   } catch (error) {
     logger.error('健康检查失败:', error);
     res.status(503).json({
-      success: false,
       message: '健康检查失败',
-      error: error.message,
-      status: 'unhealthy',
-      timestamp: new Date().toISOString()
+      status: 503,
+      details: error.message
     });
   }
 });
@@ -301,15 +305,15 @@ router.post('/test/load', async (req, res) => {
     logger.info(`性能测试完成: 平均耗时 ${avgTime}ms, 成功率 ${testResults.successRate}%`);
     
     res.json({
-      success: true,
-      data: testResults
-    });
+        status: 201,
+        data: testResults
+      });
   } catch (error) {
     logger.error('性能测试失败:', error);
     res.status(500).json({
-      success: false,
       message: '性能测试失败',
-      error: error.message
+      status: 500,
+      details: error.message
     });
   }
 });
