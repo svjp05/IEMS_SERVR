@@ -1,3 +1,241 @@
+## AI分析接口
+
+### 获取模式分析
+```
+GET /patterns
+```
+**描述**：分析地震波数据中的模式，包括周期性模式、峰值模式和频率分布
+
+**查询参数**
+| 参数名称 | 类型 | 必填 | 描述 |
+|----------|------|------|-----|
+| startDate | string | 是 | 开始日期 (格式: YYYY-MM-DD) |
+| endDate | string | 是 | 结束日期 (格式: YYYY-MM-DD) |
+| analysisType | string | 否 | 分析类型 (comprehensive, pattern, peak, frequency) |
+
+**请求示例**：
+```bash
+curl -X GET \
+  'http://localhost:3000/api/patterns?startDate=2024-01-01&endDate=2024-01-31&analysisType=comprehensive'
+```
+
+**成功响应示例**：
+```json
+{
+  "status": 200,
+  "data": {
+    "patterns": [
+      {
+        "id": 1,
+        "type": "周期性波动",
+        "confidence": 92,
+        "description": "每24小时出现一次的强度变化",
+        "timeRange": "全天"
+      },
+      {
+        "id": 2,
+        "type": "突发峰值",
+        "confidence": 87,
+        "description": "在数据中检测到3次明显的峰值",
+        "timePoints": "01/05 14:30, 01/12 09:15, 01/20 22:45"
+      }
+    ],
+    "anomalies": [
+      {
+        "id": 1,
+        "timestamp": "2024-01-15T16:30:00Z",
+        "amplitude": 12.5,
+        "probability": 95,
+        "description": "异常高振幅信号"
+      }
+    ],
+    "summary": "分析期间检测到2种模式，包括周期性模式表现为每24小时一次的强度变化，可能与温度日变化相关。另外检测到1次异常事件，其中2024-01-15T16:30:00Z的异常幅度最大，值得重点关注。"
+  }
+}
+```
+
+**错误响应示例**（缺少日期参数）：
+```json
+{
+  "message": "请提供开始和结束日期",
+  "status": 400
+}
+```
+
+**错误响应示例**（无效日期格式）：
+```json
+{
+  "message": "无效的日期格式",
+  "status": 400
+}
+```
+
+**错误响应示例**（无数据）：
+```json
+{
+  "message": "在指定时间范围内未找到数据",
+  "status": 404
+}
+```
+
+### 获取异常检测
+```
+GET /anomalies
+```
+**描述**：检测地震波数据中的异常事件
+
+**查询参数**
+| 参数名称 | 类型 | 必填 | 描述 |
+|----------|------|------|-----|
+| startDate | string | 是 | 开始日期 (格式: YYYY-MM-DD) |
+| endDate | string | 是 | 结束日期 (格式: YYYY-MM-DD) |
+
+**请求示例**：
+```bash
+curl -X GET \
+  'http://localhost:3000/api/anomalies?startDate=2024-01-01&endDate=2024-01-31'
+```
+
+**成功响应示例**：
+```json
+{
+  "status": 200,
+  "data": {
+    "anomalies": [
+      {
+        "id": 1,
+        "timestamp": "2024-01-15T16:30:00Z",
+        "amplitude": 12.5,
+        "probability": 95,
+        "description": "异常高振幅信号"
+      },
+      {
+        "id": 2,
+        "timestamp": "2024-01-22T03:15:00Z",
+        "amplitude": 8.3,
+        "probability": 88,
+        "description": "突发频率变化"
+      }
+    ],
+    "summary": "分析期间检测到2个异常事件。其中，最严重的异常出现在2024-01-15T16:30:00Z，表现为异常高振幅信号，可信度为95%。"
+  }
+}
+```
+
+**错误响应示例**：
+```json
+{
+  "message": "请提供开始和结束日期",
+  "status": 400
+}
+```
+
+### 获取趋势预测
+```
+GET /prediction
+```
+**描述**：基于历史数据预测未来地震波趋势
+
+**查询参数**
+| 参数名称 | 类型 | 必填 | 描述 |
+|----------|------|------|-----|
+| trainingStartDate | string | 是 | 训练数据开始日期 (格式: YYYY-MM-DD) |
+| trainingEndDate | string | 是 | 训练数据结束日期 (格式: YYYY-MM-DD) |
+| predictionDuration | number | 否 | 预测时长(小时)，默认72小时 |
+
+**请求示例**：
+```bash
+curl -X GET \
+  'http://localhost:3000/api/prediction?trainingStartDate=2024-01-01&trainingEndDate=2024-01-31&predictionDuration=72'
+```
+
+**成功响应示例**：
+```json
+{
+  "status": 200,
+  "data": {
+    "prediction": {
+      "startTime": "2024-02-01T00:00:00Z",
+      "endTime": "2024-02-04T00:00:00Z",
+      "confidence": 85,
+      "trendType": "stable_with_peaks",
+      "description": "预测期间整体较为稳定，预计在2月2日和2月3日各有一次小幅度峰值",
+      "peakPredictions": [
+        {
+          "timestamp": "2024-02-02T14:00:00Z",
+          "expectedAmplitude": 7.2,
+          "probability": 80
+        },
+        {
+          "timestamp": "2024-02-03T09:30:00Z",
+          "expectedAmplitude": 6.8,
+          "probability": 75
+        }
+      ],
+      "riskLevel": "low"
+    }
+  }
+}
+```
+
+**错误响应示例**：
+```json
+{
+  "message": "请提供训练数据的开始和结束日期",
+  "status": 400
+}
+```
+
+### AI问答
+```
+POST /query
+```
+**描述**：针对地震波数据进行AI问答
+
+**请求体参数**
+| 参数名称 | 类型 | 必填 | 描述 |
+|----------|------|------|-----|
+| prompt | string | 是 | 查询内容 |
+| context | object | 否 | 上下文数据 |
+
+**请求示例**：
+```bash
+curl -X POST \
+  'http://localhost:3000/api/query' \
+  -H 'Content-Type: application/json' \
+  -d '{
+    "prompt": "解释我数据中的低频峰值",
+    "context": {
+      "analysisResults": {
+        "patterns": [
+          {
+            "id": 1,
+            "type": "周期性波动",
+            "confidence": 92,
+            "description": "每24小时出现一次的强度变化"
+          }
+        ]
+      }
+    }
+  }'
+```
+
+**成功响应示例**：
+```json
+{
+  "status": 200,
+  "data": "低频峰值通常与地质构造活动或大型机械振动有关。在您的数据中，检测到每24小时出现一次的周期性波动，这可能是由温度变化引起的地表运动，也可能是附近工业活动的影响。建议进一步分析峰值出现的具体时间与环境因素的关系，以确定确切原因。"
+}
+```
+
+**错误响应示例**：
+```json
+{
+  "message": "查询内容不能为空",
+  "status": 400
+}
+```
+
 ## 系统接口
 
 ### 缓存管理
