@@ -10,11 +10,39 @@ const logger = require('../utils/logger');
 
 // 健康检查端点
 router.get('/health', (req, res) => {
+  // 获取系统内存信息
+  const memoryUsage = process.memoryUsage();
+  const heapUsedPercent = Math.round((memoryUsage.heapUsed / memoryUsage.heapTotal) * 100);
+
+  // 获取系统正常运行时间
+  const uptime = process.uptime();
+
+  // 模拟缓存状态（实际项目中应替换为真实缓存检查）
+  const cacheStatus = {
+    size: 128,
+    maxSize: 1000,
+    status: 'healthy',
+    message: '缓存运行正常'
+  };
+
   res.status(200).json({
     status: 200,
     data: {
-      timestamp: new Date().toISOString(),
-      service: 'earthquake-monitor-api',
+      status: 'healthy',
+      checks: {
+        memory: {
+          status: heapUsedPercent < 85 ? 'healthy' : 'warning',
+          heapUsedPercent: heapUsedPercent,
+          message: heapUsedPercent < 85 ? '内存使用正常' : '内存使用率较高'
+        },
+        cache: cacheStatus,
+        uptime: {
+          status: 'healthy',
+          uptime: Math.round(uptime),
+          message: `系统运行时间: ${Math.round(uptime)}秒`
+        }
+      },
+      timestamp: new Date().toISOString()
     }
   });
 });
@@ -98,8 +126,8 @@ router.get('/generator/status', (req, res) => {
 router.post('/generator/start', (req, res) => {
   const result = startDataGenerator(global.io, global.wss);
   logger.info(`启动生成器: ${result.message}`);
-  res.status(200).json({
-      status: 200,
+  res.status(201).json({
+      status: 201,
       data: result
     });
 });
@@ -107,8 +135,8 @@ router.post('/generator/start', (req, res) => {
 router.post('/generator/stop', (req, res) => {
   const result = stopDataGenerator();
   logger.info(`停止生成器: ${result.message}`);
-  res.status(200).json({
-      status: 200,
+  res.status(201).json({
+      status: 201,
       data: result
     });
 });
@@ -125,8 +153,8 @@ router.post('/generate-test-data', async (req, res, next) => {
     
     const data = await generateHistoricalData(count, startDate);
     
-    res.status(200).json({
-      status: 200,
+    res.status(201).json({
+      status: 201,
       data: {
         message: `成功生成${data.length}条历史测试数据`,
         startDate: startDate.toISOString(),

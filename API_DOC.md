@@ -231,9 +231,10 @@ curl -X POST \
 **错误响应示例**：
 ```json
 {
-  "message": "查询内容不能为空",
-  "status": 400
-}
+  "message":"服务器处理AI问答请求时出错",
+  "status":500,
+  "details":"analysisTools.generateAIResponse is not a function"
+  }
 ```
 
 ## 系统接口
@@ -254,19 +255,21 @@ GET /api/performance/cache/stats
   "status": 200,
   "data": {
     "cache": {
-      "size": 128,
-      "hits": 5432,
-      "misses": 1234,
-      "hitRate": 81.5
+      "size": 0,
+      "maxSize":1000,
+      "defaultTTL":300000,
+      "usage":"0.00%"
     },
     "timestamp": "2024-03-21T10:15:30Z",
     "uptime": 3600,
     "memory": {
-      "rss": 128,
-      "heapTotal": 64,
-      "heapUsed": 48
+      "rss":60809216,
+      "heapTotal":28344320,
+      "heapUsed":26379664,
+      "external":3977770,
+      "arrayBuffers":532617
+      }
     }
-  }
 }
 ```
 
@@ -397,9 +400,10 @@ GET /api/performance/system/stats
       "system": 65432
     },
     "cache": {
-      "size": 128,
-      "hits": 5432,
-      "misses": 1234
+      "size":2,"
+      maxSize":1000,
+      "defaultTTL":300000,
+      "usage":"0.20%"
     },
     "timestamp": "2024-03-21T10:15:30Z"
   }
@@ -1085,10 +1089,10 @@ POST /api/generator/start
 ```json
 {
   "status": 201,
-  "data": {
-    "message": "数据生成器已成功启动",
-    "timestamp": "2024-03-21T09:30:00Z"
-  }
+  "data":{
+    "running":true,
+    "message":"数据生成器已启动"
+    }
 }
 ```
 
@@ -1114,10 +1118,9 @@ POST /api/generator/stop
 {
   "status": 201,
   "data": {
-    "message": "数据生成器已成功停止",
-    "timestamp": "2024-03-21T10:45:00Z",
-    "totalGenerated": 2500
-  }
+    "running":false,
+    "message":"数据生成器未在运行"
+    }
 }
 ```
 
@@ -1132,7 +1135,7 @@ POST /api/generator/stop
 
 #### 性能测试端点
 ```
-POST /api/test/load
+POST /api/performance/test/load
 ```
 **描述**：进行系统性能测试
 
@@ -1146,7 +1149,7 @@ POST /api/test/load
 **请求示例**：
 ```bash
 curl -X POST \
-  'http://localhost:5001/api/test/load' \
+  'http://localhost:5001/api/performance/test/load' 
   -H 'Content-Type: application/json' \
   -d '{
     "iterations": 500,
@@ -1253,19 +1256,31 @@ curl -X GET \
   "status": 200,
   "data": [
     {
-      "id": "EQ202401011201",
-      "timestamp": "2024-01-01T12:00:00Z",
-      "waveformType": "X",
-      "amplitude": 5.8,
-      "epicenter": "35.6895° N, 139.6917° E"
-    },
+      "id":553,
+    "timestamp":"2025-08-15T15:57:11.590Z",
+    "amplitude":"5.21",
+    "metadata":{
+      "source":"simulator",
+      "quality":"good",
+      "historicalGeneration":true
+      },
+    "table_name":"earthquake_data",
+    "numeric_amplitude":5.21,
+    "waveform_type":"X'",
+    "waveformType":"X'"},
     {
-      "id": "EQ202401021530",
-      "timestamp": "2024-01-02T15:30:00Z", 
-      "waveformType": "X",
-      "amplitude": 6.2,
-      "epicenter": "34.0522° N, 118.2437° W"
-    }
+      "id":554,
+    "timestamp":"2025-08-15T15:57:11.590Z",
+    "amplitude":"5.21",
+    "metadata":{
+      "source":"simulator",
+      "quality":"good",
+      "historicalGeneration":true
+      },
+    "table_name":"earthquake_data",
+    "numeric_amplitude":5.21,
+    "waveform_type":"X'",
+    "waveformType":"X'"},
   ]
 }
 ```
@@ -1308,20 +1323,31 @@ curl -X GET \
 {
   "status": 200,
   "data": [
+     "id":553,
+    "timestamp":"2025-08-15T15:57:11.590Z",
+    "amplitude":"5.21",
+    "metadata":{
+      "source":"simulator",
+      "quality":"good",
+      "historicalGeneration":true
+      },
+    "table_name":"earthquake_data",
+    "numeric_amplitude":5.21,
+    "waveform_type":"X'",
+    "waveformType":"X'"},
     {
-      "id": "EQ202402021215",
-      "timestamp": "2024-02-02T12:15:00Z",
-      "waveformType": "Y",
-      "amplitude": 7.1,
-      "epicenter": "40.7128° N, 74.0060° W"
-    },
-    {
-      "id": "EQ202402101845",
-      "timestamp": "2024-02-10T18:45:00Z",
-      "waveformType": "Y",
-      "amplitude": 6.5,
-      "epicenter": "51.5074° N, 0.1278° W"
-    }
+      "id":554,
+    "timestamp":"2025-08-15T15:57:11.590Z",
+    "amplitude":"5.21",
+    "metadata":{
+      "source":"simulator",
+      "quality":"good",
+      "historicalGeneration":true
+      },
+    "table_name":"earthquake_data",
+    "numeric_amplitude":5.21,
+    "waveform_type":"X'",
+    "waveformType":"X'"},
   ]
 }
 ```
@@ -1339,7 +1365,7 @@ curl -X GET \
 
 ### 最新数据
 ```
-GET /api/earthquake-data/latest
+GET /api/earthquakeData/earthquake-data/latest
 ```
 **请求参数**
 | 参数名称 | 类型 | 必填 | 默认值 | 描述 |
@@ -1361,19 +1387,17 @@ GET /api/earthquake-data/latest
   "status": 200,
   "data": [
     {
-      "id": "EQ202403201845",
-      "timestamp": "2024-03-20T18:45:00Z",
-      "waveformType": "Z",
-      "amplitude": 5.9,
-      "epicenter": "22.3193° N, 114.1694° E"
+      "id":1293,
+    "timestamp":"2025-08-22T16:06:14.889Z",
+    "amplitude":"5.68",
+    "metadata":{"source":"simulator","quality":"good"}
     },
     {
-      "id": "EQ202403201230",
-      "timestamp": "2024-03-20T12:30:00Z",
-      "waveformType": "X",
-      "amplitude": 6.3,
-      "epicenter": "35.6762° N, 139.6503° E"
-    }
+      "id":1292,
+      "timestamp":"2025-08-22T16:06:13.887Z",
+      "amplitude":"0.24",
+      "metadata":{"source":"simulator","quality":"good"}
+      }
   ]
 }
 ```
@@ -1389,7 +1413,7 @@ GET /api/earthquake-data/latest
 
 ### 数据提交
 ```
-POST /api/earthquake-data
+POST /api/earthquakeData/earthquake-data
 ```
 **请求体参数**
 | 参数名称 | 类型 | 必填 | 格式要求 | 描述 |
@@ -1405,7 +1429,7 @@ curl -X POST \
   -H 'Content-Type: application/json' \
   -d '{
     "amplitude": 6.8,
-    // "timestamp": "2024-03-15T08:23:45Z",  // 可选参数
+    "timestamp": "2024-03-15T08:23:45Z",  // 可选参数
     "metadata": {
       "sensorId": "SENSOR-001",
       "location": "35.6895° N, 139.6917° E"

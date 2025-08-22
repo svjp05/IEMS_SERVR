@@ -160,18 +160,18 @@ router.get('/prediction', async (req, res) => {
     logger.info(`趋势预测请求: trainingStartDate=${trainingStartDate}, trainingEndDate=${trainingEndDate}, predictionDuration=${predictionDuration}`);
     
     if (!trainingStartDate || !trainingEndDate) {
-      return res.status(400).json({ error: { message: '请提供训练数据的开始和结束日期' } });
+      return res.status(400).json({ message: '请提供训练数据的开始和结束日期',status: 500, details: error.message  });
     }
     
     // 验证日期格式
     if (isNaN(new Date(trainingStartDate).getTime()) || isNaN(new Date(trainingEndDate).getTime())) {
-      return res.status(400).json({ error: { message: '无效的日期格式' } });
+      return res.status(400).json({ message: '无效的日期格式',status: 500, details: error.message });
     }
     
     // 验证预测时长
     const duration = parseInt(predictionDuration) || 72;
     if (duration <= 0) {
-      return res.status(400).json({ message: '预测时长必须大于0', status: 400 });
+      return res.status(400).json({ message: '预测时长必须大于0', status: 400, details: error.message });
     }
     
     // 从数据库获取训练数据（优先使用统一接口）
@@ -184,7 +184,7 @@ router.get('/prediction', async (req, res) => {
     }
     
     if (!trainingData || trainingData.length === 0) {
-      return res.status(404).json({ message: '在指定训练时间范围内未找到数据', status: 404 });
+      return res.status(404).json({ message: '在指定训练时间范围内未找到数据', status: 404 ,details: error.message });
     }
     
     logger.info(`找到${trainingData.length}条数据用于训练预测模型`);
@@ -210,7 +210,7 @@ router.post('/query', async (req, res) => {
     logger.info(`AI问答请求: prompt="${prompt}", 包含上下文=${!!context}`);
     
     if (!prompt || prompt.trim() === '') {
-      return res.status(400).json({ message: '查询内容不能为空', status: 400 });
+      return res.status(400).json({ message: '查询内容不能为空', status: 400 , details: error.message});
     }
     
     // 使用智谱AI分析，优先使用配置的认证方式

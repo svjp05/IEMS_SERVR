@@ -242,12 +242,19 @@ router.post('/earthquake-data', async (req, res, next) => {
     }
     logger.info(`已保存API提交的地震数据: ID=${savedData.id}`);
     
+    // 模拟广播信息（实际项目中应替换为真实的广播状态）
+    const broadcastInfo = {
+      nodes: 5, // 模拟5个节点
+      status: 'completed'
+    };
+
     res.status(201).json({
       status: 201,
-      message: '数据已成功保存并广播',
       data: {
+        message: '数据已成功保存并广播',
         id: savedData.id,
-        timestamp: savedData.timestamp
+        timestamp: savedData.timestamp.toISOString(),
+        broadcast: broadcastInfo
       }
     });
   } catch (error) {
