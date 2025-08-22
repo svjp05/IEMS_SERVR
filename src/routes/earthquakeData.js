@@ -5,7 +5,7 @@ const dbIndex = require('../db/index'); // 统一的数据库接口
 const logger = require('../utils/logger');
 
 // 获取历史地震数据
-router.get('/earthquake-data/historical', async (req, res, next) => {
+router.get('/historical', async (req, res, next) => {
   try {
     const { startDate, endDate, limit, waveformType } = req.query;
     
@@ -96,7 +96,7 @@ router.get('/earthquake-data/historical', async (req, res, next) => {
 });
 
 // 获取特定波形类型的历史数据
-router.get('/earthquake-data/historical/:waveformType', async (req, res, next) => {
+router.get('/historical/:waveformType', async (req, res, next) => {
   try {
     const { startDate, endDate, limit } = req.query;
     const { waveformType } = req.params;
