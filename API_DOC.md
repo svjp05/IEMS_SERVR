@@ -2,7 +2,7 @@
 
 ### 获取模式分析
 ```
-GET /patterns
+GET /api/aiAnalysis/patterns
 ```
 **描述**：分析地震波数据中的模式，包括周期性模式、峰值模式和频率分布
 
@@ -16,7 +16,7 @@ GET /patterns
 **请求示例**：
 ```bash
 curl -X GET \
-  'http://localhost:3000/api/patterns?startDate=2024-01-01&endDate=2024-01-31&analysisType=comprehensive'
+  'http://localhost:5001/api/patterns?startDate=2024-01-01&endDate=2024-01-31&analysisType=comprehensive'
 ```
 
 **成功响应示例**：
@@ -80,7 +80,7 @@ curl -X GET \
 
 ### 获取异常检测
 ```
-GET /anomalies
+GET /api/aiAnalysis/anomalies
 ```
 **描述**：检测地震波数据中的异常事件
 
@@ -93,7 +93,7 @@ GET /anomalies
 **请求示例**：
 ```bash
 curl -X GET \
-  'http://localhost:3000/api/anomalies?startDate=2024-01-01&endDate=2024-01-31'
+  'http://localhost:5001/api/anomalies?startDate=2024-01-01&endDate=2024-01-31'
 ```
 
 **成功响应示例**：
@@ -132,7 +132,7 @@ curl -X GET \
 
 ### 获取趋势预测
 ```
-GET /prediction
+GET /api/aiAnalysis/prediction
 ```
 **描述**：基于历史数据预测未来地震波趋势
 
@@ -146,7 +146,7 @@ GET /prediction
 **请求示例**：
 ```bash
 curl -X GET \
-  'http://localhost:3000/api/prediction?trainingStartDate=2024-01-01&trainingEndDate=2024-01-31&predictionDuration=72'
+  'http://localhost:5001/api/prediction?trainingStartDate=2024-01-01&trainingEndDate=2024-01-31&predictionDuration=72'
 ```
 
 **成功响应示例**：
@@ -188,7 +188,7 @@ curl -X GET \
 
 ### AI问答
 ```
-POST /query
+POST /api/aiAnalysis/query
 ```
 **描述**：针对地震波数据进行AI问答
 
@@ -201,7 +201,7 @@ POST /query
 **请求示例**：
 ```bash
 curl -X POST \
-  'http://localhost:3000/api/query' \
+  'http://localhost:5001/api/aiAnalysis/query' \
   -H 'Content-Type: application/json' \
   -d '{
     "prompt": "解释我数据中的低频峰值",
@@ -242,7 +242,7 @@ curl -X POST \
 
 #### 获取缓存统计信息
 ```
-GET /cache/stats
+GET /api/performance/cache/stats
 ```
 **描述**：获取缓存系统的统计信息，包括缓存大小、命中率等
 
@@ -281,7 +281,7 @@ GET /cache/stats
 
 #### 清理缓存
 ```
-POST /cache/clear
+POST /api/performance/cache/clear
 ```
 **描述**：清理指定类型的缓存
 
@@ -293,7 +293,7 @@ POST /cache/clear
 **请求示例**：
 ```bash
 curl -X POST \
-  'http://localhost:3000/api/cache/clear' \
+  'http://localhost:5001/api/performance/cache/clear' \
   -H 'Content-Type: application/json' \
   -d '{
     "type": "analysis"
@@ -322,7 +322,7 @@ curl -X POST \
 
 #### 预热缓存
 ```
-POST /cache/warmup
+POST /api/performance/cache/warmup
 ```
 **描述**：预热指定类型的缓存
 
@@ -334,9 +334,9 @@ POST /cache/warmup
 **请求示例**：
 ```bash
 curl -X POST \
-  'http://localhost:3000/api/cache/warmup' \
+  'http://localhost:5001/api/performance/cache/warmup' \
   -H 'Content-Type: application/json' \
-  -d '{
+  -d '{"type": "all"}''{
     "type": "all"
   }'
 ```
@@ -367,7 +367,7 @@ curl -X POST \
 
 #### 系统性能监控
 ```
-GET /system/stats
+GET /api/performance/system/stats
 ```
 **描述**：获取系统性能统计信息，包括内存使用、CPU负载等
 
@@ -417,7 +417,7 @@ GET /system/stats
 
 ##### 健康检查
 ```
-GET /health
+GET /api/health
 ```
 **描述**：检查系统是否正常运行
 
@@ -464,7 +464,7 @@ GET /health
 
 ### 生成PDF报告
 ```
-POST /reports/pdf
+POST /api/reports/pdf
 ```
 **描述**：生成地震分析报告的PDF版本
 
@@ -477,7 +477,7 @@ POST /reports/pdf
 **请求示例**：
 ```bash
 curl -X POST \
-  'http://localhost:3000/api/reports/pdf' \
+  'http://localhost:5001/api/reports/pdf' \
   -H 'Content-Type: application/json' \
   -d '{
     "reportData": {"dateRange": "2024-01-01 to 2024-03-31", "data": {"basic": {...}}},
@@ -527,7 +527,7 @@ POST /reports/excel
 **请求示例**：
 ```bash
 curl -X POST \
-  'http://localhost:3000/api/reports/excel' \
+  'http://localhost:5001/api/reports/excel' \
   -H 'Content-Type: application/json' \
   -d '{
     "reportData": {"dateRange": "2024-01-01 to 2024-03-31", "data": {"basic": {...}}},
@@ -607,7 +607,7 @@ POST /reports/preview
 **请求示例**：
 ```bash
 curl -X POST \
-  'http://localhost:3000/api/reports/preview' \
+  'http://localhost:5001/api/reports/preview' \
   -H 'Content-Type: application/json' \
   -d '{
     "reportData": {"dateRange": "2024-01-01 to 2024-03-31", "data": {"basic": {...}}},
@@ -775,7 +775,7 @@ POST /reports/validate
 **请求示例**：
 ```bash
 curl -X POST \
-  'http://localhost:3000/api/reports/validate' \
+  'http://localhost:5001/api/reports/validate' \
   -H 'Content-Type: application/json' \
   -d '{
     "reportData": {"dateRange": "2024-01-01 to 2024-03-31", "data": {"basic": {...}}},
@@ -835,7 +835,7 @@ curl -X POST \
 
 #### 获取历史地震数据
 ```
-GET /earthquake-data/historical
+GET /api/earthquake-data/historical
 ```
 **描述**：获取指定日期范围内的历史地震数据
 
@@ -850,7 +850,7 @@ GET /earthquake-data/historical
 **请求示例**：
 ```bash
 curl -X GET \
-  'http://localhost:3000/earthquake-data/historical?startDate=2024-01-01T00:00:00Z&endDate=2024-01-31T23:59:59Z&limit=100'
+  'http://localhost:5001/api/earthquake-data/historical?startDate=2024-01-01T00:00:00Z&endDate=2024-01-31T23:59:59Z&limit=100'
 ```
 
 **成功响应示例**：
@@ -892,7 +892,7 @@ curl -X GET \
 ```
 #### 获取特定波形类型的历史数据
 ```
-GET /earthquake-data/historical/:waveformType
+GET /api/earthquake-data/historical/:waveformType
 ```
 **描述**：获取指定波形类型的历史地震数据
 
@@ -911,7 +911,7 @@ GET /earthquake-data/historical/:waveformType
 **请求示例**：
 ```bash
 curl -X GET \
-  'http://localhost:3000/earthquake-data/historical/X?startDate=2024-01-01T00:00:00Z&endDate=2024-01-31T23:59:59Z'
+  'http://localhost:5001/api/earthquake-data/historical/X?startDate=2024-01-01T00:00:00Z&endDate=2024-01-31T23:59:59Z'
 ```
 
 **成功响应示例**：
@@ -947,7 +947,7 @@ curl -X GET \
 
 #### 获取最新数据
 ```
-GET /earthquake-data/latest
+GET /api/earthquake-data/latest
 
 ```
 **描述**：获取最新的地震数据
@@ -960,7 +960,7 @@ GET /earthquake-data/latest
 **请求示例**：
 ```bash
 curl -X GET \
-  'http://localhost:3000/earthquake-data/latest?limit=50'
+  'http://localhost:5001/api/earthquake-data/latest?limit=50'
 ```
 
 **成功响应示例**：
@@ -996,7 +996,7 @@ curl -X GET \
 
 #### 提交地震数据
 ```
-POST /earthquake-data
+POST /api/earthquake-data
 ```
 **描述**：提交新的地震数据
 
@@ -1010,7 +1010,7 @@ POST /earthquake-data
 **请求示例**：
 ```bash
 curl -X POST \
-  'http://localhost:3000/earthquake-data' \
+  'http://localhost:5001/api/earthquake-data' \
   -H 'Content-Type: application/json' \
   -d '{
     "amplitude": 5.2,
@@ -1046,7 +1046,7 @@ curl -X POST \
 
 #### 获取生成器状态
 ```
-GET /generator/status
+GET /api/generator/status
 ```
 **描述**：获取数据生成器的当前状态
 
@@ -1075,7 +1075,7 @@ GET /generator/status
 
 #### 启动生成器
 ```
-POST /generator/start
+POST /api/generator/start
 ```
 **描述**：启动数据生成器
 
@@ -1103,7 +1103,7 @@ POST /generator/start
 
 #### 停止生成器
 ```
-POST /generator/stop
+POST /api/generator/stop
 ```
 **描述**：停止数据生成器
 
@@ -1132,7 +1132,7 @@ POST /generator/stop
 
 #### 性能测试端点
 ```
-POST /test/load
+POST /api/test/load
 ```
 **描述**：进行系统性能测试
 
@@ -1146,7 +1146,7 @@ POST /test/load
 **请求示例**：
 ```bash
 curl -X POST \
-  'http://localhost:3000/api/test/load' \
+  'http://localhost:5001/api/test/load' \
   -H 'Content-Type: application/json' \
   -d '{
     "iterations": 500,
@@ -1185,7 +1185,7 @@ curl -X POST \
 
 ### 生成历史数据测试
 ```
-POST /generate-test-data
+POST /api/generate-test-data
 ```
 **描述**：生成历史地震测试数据
 
@@ -1198,7 +1198,7 @@ POST /generate-test-data
 **请求示例**：
 ```bash
 curl -X POST \
-  'http://localhost:3000/api/generate-test-data' \
+  'http://localhost:5001/api/generate-test-data' \
   -H 'Content-Type: application/json' \
   -d '{
     "count": 500,
@@ -1230,7 +1230,7 @@ curl -X POST \
 
 ### 历史数据查询
 ```
-GET /earthquake-data/historical
+GET /api/earthquake-data/historical
 ```
 **参数说明**
 | 参数名称 | 类型 | 必填 | 格式要求 | 描述 |
@@ -1243,7 +1243,7 @@ GET /earthquake-data/historical
 **请求示例**：
 ```bash
 curl -X GET \
-  'http://localhost:3000/api/earthquake-data/historical?startDate=2024-01-01T00:00:00Z&endDate=2024-01-31T23:59:59Z&waveformType=X' \
+  'http://localhost:5001/api/earthquake-data/historical?startDate=2024-01-01T00:00:00Z&endDate=2024-01-31T23:59:59Z&waveformType=X' \
   -H 'Authorization: Bearer <your_token>'
 ```
 
@@ -1282,7 +1282,7 @@ curl -X GET \
 
 ### 特定波形数据
 ```
-GET /earthquake-data/historical/:waveformType
+GET /api/earthquake-data/historical/:waveformType
 ```
 **路径参数**
 | 参数名称 | 类型 | 允许值 | 描述 |
@@ -1299,7 +1299,7 @@ GET /earthquake-data/historical/:waveformType
 **请求示例**：
 ```bash
 curl -X GET \
-  'http://localhost:3000/earthquake-data/historical/Y?startDate=2024-02-01T00:00:00Z&endDate=2024-02-15T23:59:59Z' \
+  'http://localhost:5001/api/earthquake-data/historical/Y?startDate=2024-02-01T00:00:00Z&endDate=2024-02-15T23:59:59Z' \
   -H 'Content-Type: application/json'
 ```
 
@@ -1401,7 +1401,7 @@ POST /api/earthquake-data
 **请求示例**：
 ```bash
 curl -X POST \
-  'http://localhost:3000/api/earthquake-data' \
+  'http://localhost:5001/api/earthquake-data' \
   -H 'Content-Type: application/json' \
   -d '{
     "amplitude": 6.8,

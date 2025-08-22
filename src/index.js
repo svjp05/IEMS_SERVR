@@ -6,7 +6,11 @@ const WebSocket = require('ws');
 const cors = require('cors');
 const { setupDatabase, saveEarthquakeData } = require('./db');
 const logger = require('./utils/logger');
-const routes = require('./routes');
+const routes = require('./routes/main');
+const aiAnalysis = require('./routes/aiAnalysis');
+const earthquakeData = require('./routes/earthquakeData');
+const performance = require('./routes/performance');
+const reports = require('./routes/reports');
 const { startDataGenerator, stopDataGenerator, getGeneratorStatus } = require('./services/dataGenerator');
 const url = require('url');
 
@@ -20,7 +24,10 @@ app.use(express.json());
 
 // 设置路由
 app.use('/api', routes);
-
+app.use('/api/aiAnalysis', aiAnalysis);
+app.use('/api/earthquakeData', earthquakeData);
+app.use('/api/performance', performance);
+app.use('/api/reports', reports);
 // 新增WebSerial API支持
 app.post('/api/serial/list', (req, res) => {
   // 模拟获取串口列表，由于WebSerial API只能在前端使用，服务器端只能提供模拟数据
@@ -565,9 +572,13 @@ server.listen(PORT, async () => {
   logger.info(`原生WebSocket服务器地址: ws://localhost:${PORT}/ws`);
   
   try {
-    // 初始化数据库
-    await setupDatabase();
-    logger.info('数据库初始化成功');
+    // 检查是否需要跳过数据库初始化
+    if (process.env.SKIP_DB_INIT !== 'true') {
+      await setupDatabase();
+      logger.info('数据库初始化成功');
+    } else {
+      logger.info('已跳过数据库初始化');
+    }
 
     // 将io实例传递给数据生成器，但不立即启动
     global.io = io;
@@ -664,4 +675,4 @@ process.on('SIGTERM', () => {
     logger.info('HTTP服务器已关闭');
     process.exit(0);
   });
-}); 
+});
