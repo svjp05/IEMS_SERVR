@@ -16,7 +16,7 @@ GET /api/aiAnalysis/patterns
 **请求示例**：
 ```bash
 curl -X GET \
-  'http://localhost:5001/api/patterns?startDate=2024-01-01&endDate=2024-01-31&analysisType=comprehensive'
+  'http://localhost:5001/api/aiAnalysis/patterns?startDate=2024-01-01&endDate=2024-01-31&analysisType=comprehensive'
 ```
 
 **成功响应示例**：
@@ -93,7 +93,7 @@ GET /api/aiAnalysis/anomalies
 **请求示例**：
 ```bash
 curl -X GET \
-  'http://localhost:5001/api/anomalies?startDate=2024-01-01&endDate=2024-01-31'
+  'http://localhost:5001/api/aiAnalysis/anomalies?startDate=2024-01-01&endDate=2024-01-31'
 ```
 
 **成功响应示例**：
@@ -146,7 +146,7 @@ GET /api/aiAnalysis/prediction
 **请求示例**：
 ```bash
 curl -X GET \
-  'http://localhost:5001/api/prediction?trainingStartDate=2024-01-01&trainingEndDate=2024-01-31&predictionDuration=72'
+  'http://localhost:5001/api/aiAnalysis/prediction?trainingStartDate=2024-01-01&trainingEndDate=2024-01-31&predictionDuration=72'
 ```
 
 **成功响应示例**：
@@ -514,7 +514,7 @@ Content-Disposition: attachment; filename="地震分析报告_2024-03-21.pdf"
 
 ### 生成Excel报告
 ```
-POST /reports/excel
+POST /api/reports/excel
 ```
 **描述**：生成地震分析报告的Excel版本
 
@@ -564,7 +564,7 @@ Content-Disposition: attachment; filename="地震数据分析_2024-03-21.xlsx"
 
 ### 获取报告模板
 ```
-GET /reports/template/:type
+GET /api/reports/template/:type
 ```
 **描述**：获取指定类型的报告模板
 
@@ -594,7 +594,7 @@ GET /reports/template/:type
 
 ### 预览报告
 ```
-POST /reports/preview
+POST /api/reports/preview
 ```
 **描述**：生成报告预览
 
@@ -662,7 +662,7 @@ curl -X POST \
 
 ### 获取报告配置选项
 ```
-GET /reports/config
+GET /api/reports/config
 ```
 **描述**：获取报告生成的配置选项
 
@@ -762,7 +762,7 @@ GET /reports/config
 
 ### 验证报告数据
 ```
-POST /reports/validate
+POST /api/reports/validate
 ```
 **描述**：验证报告数据的完整性和有效性
 
