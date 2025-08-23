@@ -656,9 +656,15 @@ io.on('connection', (socket) => {
   });
 });
 
-// 优雅关闭
-process.on('SIGTERM', () => {
-  logger.info('SIGTERM信号已接收，正在关闭服务器...');
+// 优雅关闭函数
+function gracefulShutdown(signal) {
+  logger.info(`${signal}信号已接收，正在关闭服务器...`);
+  
+  // 设置关闭超时
+  const timeout = setTimeout(() => {
+    logger.error('服务器关闭超时，强制退出');
+    process.exit(1);
+  }, 5000); // 5秒超时
   
   // 停止数据生成器
   if (getGeneratorStatus().running) {
@@ -671,8 +677,31 @@ process.on('SIGTERM', () => {
     logger.info('WebSocket服务器已关闭');
   });
   
+  // 关闭数据库连接池
+  pool.end(() => {
+    logger.info('数据库连接池已关闭');
+  });
+  
   server.close(() => {
     logger.info('HTTP服务器已关闭');
+    clearTimeout(timeout); // 取消超时
     process.exit(0);
   });
+}
+
+// 监听各种退出信号
+process.on('SIGTERM', () => gracefulShutdown('SIGTERM'));
+process.on('SIGINT', () => gracefulShutdown('SIGINT'));  // Ctrl+C
+process.on('SIGQUIT', () => gracefulShutdown('SIGQUIT')); // Ctrl+\
+
+// 处理未捕获的异常
+process.on('uncaughtException', (error) => {
+  logger.error('未捕获的异常:', error);
+  gracefulShutdown('uncaughtException');
+});
+
+// 处理未处理的Promise拒绝
+process.on('unhandledRejection', (reason, promise) => {
+  logger.error('未处理的Promise拒绝:', reason);
+  gracefulShutdown('unhandledRejection');
 });
