@@ -3,6 +3,7 @@ const router = express.Router();
 const { queryEarthquakeData, queryAllWaveformData, getLatestEarthquakeData, saveEarthquakeData } = require('../db');
 const dbIndex = require('../db/index'); // 统一的数据库接口
 const logger = require('../utils/logger');
+const { validateEarthquakeData, formatEarthquakeData } = require('../models/earthquakeModel');
 
 // 获取历史地震数据
 router.get('/historical', async (req, res, next) => {
@@ -214,23 +215,22 @@ router.get('/earthquake-data/latest', async (req, res, next) => {
 // 提交地震数据
 router.post('/earthquake-data', async (req, res, next) => {
   try {
-    const { amplitude, timestamp, metadata } = req.body;
+    const rawData = req.body;
     
-    if (amplitude === undefined) {
+    // 验证数据
+    const validationResult = validateEarthquakeData(rawData);
+    if (!validationResult.isValid) {
+      logger.warn(`数据验证失败: ${JSON.stringify(validationResult.errors)}`);
       return res.status(400).json({
-        message: '振幅数据是必需的参数',
+        message: '提交的数据无效',
         status: 400,
-        details: '请求体中缺少amplitude字段'
+        details: validationResult.errors
       });
     }
     
-    const earthquakeData = {
-      amplitude,
-      timestamp: timestamp ? new Date(timestamp) : new Date(),
-      metadata: metadata || { source: 'api' }
-    };
-    
-    logger.info(`通过API收到地震数据: ${JSON.stringify(earthquakeData)}`);
+    // 格式化数据
+    const earthquakeData = formatEarthquakeData(rawData);
+    logger.info(`通过API收到格式化后的地震数据: ${JSON.stringify(earthquakeData)}`);
 
     // 保存到数据库（优先使用统一接口）
     let savedData;
@@ -242,23 +242,33 @@ router.post('/earthquake-data', async (req, res, next) => {
     }
     logger.info(`已保存API提交的地震数据: ID=${savedData.id}`);
     
-    // 模拟广播信息（实际项目中应替换为真实的广播状态）
-    const broadcastInfo = {
-      nodes: 5, // 模拟5个节点
-      status: 'completed'
-    };
-
+    // 返回格式化后的响应
     res.status(201).json({
       status: 201,
+      message: '数据已成功保存并广播',
       data: {
-        message: '数据已成功保存并广播',
         id: savedData.id,
-        timestamp: savedData.timestamp.toISOString(),
-        broadcast: broadcastInfo
+        timestamp: savedData.timestamp,
+        amplitude: savedData.amplitude,
+        metadata: savedData.metadata
       }
     });
   } catch (error) {
     logger.error('保存API提交的地震数据时出错:', error);
+    // 处理数据库错误
+    if (error.code && error.code === '23502') {
+      return res.status(400).json({
+        message: '缺少必填字段',
+        status: 400,
+        details: error.detail
+      });
+    } else if (error.code && error.code === '22P02') {
+      return res.status(400).json({
+        message: '数据类型不匹配',
+        status: 400,
+        details: error.detail
+      });
+    }
     next(error);
   }
 });

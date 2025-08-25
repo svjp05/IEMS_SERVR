@@ -2,13 +2,18 @@ const { Pool } = require('pg');
 const logger = require('../utils/logger');
 
 // 创建数据库连接池
-const pool = new Pool({
-  host: process.env.PGHOST,
-  user: process.env.PGUSER,
-  password: process.env.PGPASSWORD,
-  database: process.env.PGDATABASE,
-  port: process.env.PGPORT,
-});
+// 支持两种连接方式: DATABASE_URL 或单独的连接参数
+const poolConfig = process.env.DATABASE_URL
+  ? { connectionString: process.env.DATABASE_URL }
+  : {
+      host: process.env.PGHOST,
+      user: process.env.PGUSER,
+      password: process.env.PGPASSWORD,
+      database: process.env.PGDATABASE,
+      port: process.env.PGPORT,
+    };
+
+const pool = new Pool(poolConfig);
 
 // 测试数据库连接
 pool.on('connect', () => {
@@ -214,6 +219,15 @@ const getHistoricalData = async (startDate, endDate, waveformType = null, limit 
         }
       }
 
+      // 如果amplitude是JSON字符串，尝试解析
+      if (typeof row.amplitude === 'string' && (row.amplitude.startsWith('{') || row.amplitude.startsWith('['))) {
+        try {
+          processedRow.amplitude = JSON.parse(row.amplitude);
+        } catch (e) {
+          // 保持原始字符串
+        }
+      }
+
       // 添加波形类型
       processedRow.waveform_type = waveformType || 'unknown';
 
@@ -337,6 +351,15 @@ const queryAllWaveformData = async (startTime, endTime, limit = null) => {
         }
       }
 
+      // 如果amplitude是JSON字符串，尝试解析
+      if (typeof row.amplitude === 'string' && (row.amplitude.startsWith('{') || row.amplitude.startsWith('['))) {
+        try {
+          processedRow.amplitude = JSON.parse(row.amplitude);
+        } catch (e) {
+          // 保持原始字符串
+        }
+      }
+
       // 从metadata中获取波形类型
       try {
         const metadata = typeof row.metadata === 'string' ? JSON.parse(row.metadata) : row.metadata;
@@ -454,6 +477,101 @@ const getAnalysisData = async (startDate, endDate, analysisType) => {
   }
 };
 
+// 获取最新的地震数据
+async function getLatestEarthquakeData(limit = 100) {
+  try {
+    logger.info(`获取最新地震数据: 限制=${limit}`);
+    
+    const query = `
+      SELECT id, timestamp, amplitude, metadata
+      FROM earthquake_data
+      ORDER BY timestamp DESC
+      LIMIT $1
+    `;
+    
+    const values = [limit];
+    const result = await pool.query(query, values);
+    
+    logger.info(`获取最新数据结果: 找到${result.rows.length}条记录`);
+    
+    return result.rows;
+  } catch (error) {
+    logger.error('获取最新地震数据时出错:', error);
+    throw error;
+  }
+}
+
+// 生成测试数据
+async function generateTestData(count = 100, daysRange = 7) {
+  try {
+    // 创建一个批量插入的查询
+    const values = [];
+    const valueStrings = [];
+    
+    const now = new Date();
+    const msPerDay = 24 * 60 * 60 * 1000;
+    
+    for (let i = 0; i < count; i++) {
+      // 随机时间戳，在过去daysRange天内
+      const randomTime = new Date(now.getTime() - Math.random() * daysRange * msPerDay);
+      
+      // 随机振幅，范围1-10，保留两位小数
+      const amplitude = (Math.random() * 9 + 1).toFixed(2);
+      
+      // 添加参数
+      values.push(randomTime, amplitude, JSON.stringify({source: 'test-generator'}));
+      valueStrings.push(`($${i * 3 + 1}, $${i * 3 + 2}, $${i * 3 + 3})`);
+    }
+    
+    // 构建并执行查询
+    const query = `
+      INSERT INTO earthquake_data (timestamp, amplitude, metadata)
+      VALUES ${valueStrings.join(', ')}
+      RETURNING id
+    `;
+    
+    const result = await pool.query(query, values);
+    
+    return {
+      count: result.rowCount,
+      message: `已生成${result.rowCount}条测试数据`
+    };
+  } catch (error) {
+    logger.error('生成测试数据时出错:', error);
+    throw error;
+  }
+}
+
+// 清空测试数据
+async function clearTestData() {
+  try {
+    const query = `
+      DELETE FROM earthquake_data
+      WHERE metadata->>'source' = 'test-generator'
+    `;
+    
+    const result = await pool.query(query);
+    
+    return {
+      count: result.rowCount,
+      message: `已清除${result.rowCount}条测试数据`
+    };
+  } catch (error) {
+    logger.error('清除测试数据时出错:', error);
+    throw error;
+  }
+}
+
+// 清理资源
+async function shutdown() {
+  try {
+    await pool.end();
+    logger.info('数据库连接池已关闭');
+  } catch (error) {
+    logger.error('关闭数据库连接池时出错:', error);
+  }
+}
+
 module.exports = {
   pool,
   setupDatabase,
@@ -462,5 +580,9 @@ module.exports = {
   queryAllWaveformData,
   getStatistics,
   getAnalysisData,
+  getLatestEarthquakeData,
+  generateTestData,
+  clearTestData,
+  shutdown
 };
  
